@@ -16,23 +16,27 @@ def extended_gcd(a: int, b: int) -> Tuple[int, int, int]:
     return gcd, x, y
 
 
-def can_frogs_meet(x1: int, v1: int, x2: int, v2: int, total_length: int) -> int:
+def can_frogs_meet(
+    apollo_start: int, apollo_velocity: int, 
+    bubbles_start: int, bubbles_velocity: int, 
+    equator_length: int
+) -> int:
     """
     Determine if two frogs can meet and find minimum jumps.
     
     Args:
-        x1: Apollo's starting position
-        v1: Apollo's jump distance
-        x2: Bubbles' starting position  
-        v2: Bubbles' jump distance
-        total_length: Length of the equator
+        apollo_start: Apollo's starting position
+        apollo_velocity: Apollo's jump distance
+        bubbles_start: Bubbles' starting position  
+        bubbles_velocity: Bubbles' jump distance
+        equator_length: Length of the equator
     
     Returns:
         int: Minimum number of jumps if they can meet, -1 if impossible
     """
     # Calculate relative velocity and initial distance
-    rel_velocity = v2 - v1
-    initial_distance = (x1 - x2) % total_length
+    rel_velocity = bubbles_velocity - apollo_velocity
+    initial_distance = (apollo_start - bubbles_start) % equator_length
     
     # Handle case where frogs have same velocity
     if rel_velocity == 0:
@@ -41,15 +45,15 @@ def can_frogs_meet(x1: int, v1: int, x2: int, v2: int, total_length: int) -> int
         else:
             return -1  # They'll never meet
     
-    # We need to solve: t * rel_velocity ≡ -initial_distance (mod total_length)
-    # Because we want: (x1 + t*v1) ≡ (x2 + t*v2) (mod total_length)
-    # Which gives us: t*(v1-v2) ≡ (x2-x1) (mod total_length)
-    # So: t*(-rel_velocity) ≡ (-initial_distance) (mod total_length)
+    # We need to solve: t * rel_velocity ≡ -initial_distance (mod equator_length)
+    # Because we want: (apollo_start + t*apollo_velocity) ≡ (bubbles_start + t*bubbles_velocity) (mod equator_length)
+    # Which gives us: t*(apollo_velocity-bubbles_velocity) ≡ (bubbles_start-apollo_start) (mod equator_length)
+    # So: t*(-rel_velocity) ≡ (-initial_distance) (mod equator_length)
     
-    target = (-initial_distance) % total_length
-    coeff = (-rel_velocity) % total_length
+    target = (-initial_distance) % equator_length
+    coeff = (-rel_velocity) % equator_length
     
-    gcd, x, y = extended_gcd(coeff, total_length)
+    gcd, x, y = extended_gcd(coeff, equator_length)
     
     # Check if solution exists
     if target % gcd != 0:
@@ -60,7 +64,7 @@ def can_frogs_meet(x1: int, v1: int, x2: int, v2: int, total_length: int) -> int
     t = x * scale
     
     # Get the smallest positive solution
-    step = total_length // gcd
+    step = equator_length // gcd
     t = t % step
     if t < 0:
         t += step
@@ -68,14 +72,25 @@ def can_frogs_meet(x1: int, v1: int, x2: int, v2: int, total_length: int) -> int
     return t
 
 
-def solve_frog_problem(x1: int, v1: int, x2: int, v2: int, total_length: int) -> str:
+def solve_frog_problem(
+    apollo_start: int, apollo_velocity: int,
+    bubbles_start: int, bubbles_velocity: int, 
+    equator_length: int
+) -> str:
     """
     Main function to solve the frog meeting problem.
+    
+    Args:
+        apollo_start: Apollo's starting position
+        apollo_velocity: Apollo's jump distance
+        bubbles_start: Bubbles' starting position  
+        bubbles_velocity: Bubbles' jump distance
+        equator_length: Length of the equator
     
     Returns:
         str: Either the minimum number of jumps or "Impossible"
     """
-    result = can_frogs_meet(x1, v1, x2, v2, total_length)
+    result = can_frogs_meet(apollo_start, apollo_velocity, bubbles_start, bubbles_velocity, equator_length)
     
     if result == -1:
         return "Impossible"
